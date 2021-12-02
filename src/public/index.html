@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emisor</title>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <h1>Directo</h1>
+    <button id="emitir">Emitir</button>
+    <video src="" id="video" style="width:800px; height: 600px;" autoplay></video>
+    <canvas id="preview"></canvas>
+    <div id="status"></div>
+
+    <script>
+        var canvas = document.querySelector("#preview");
+        var context = canvas.getContext("2d");
+
+        var emitir = document.querySelector("#emitir");
+
+
+        canvas.style.display = "none";
+        canvas.width = 500;
+        canvas.height = 380;
+
+        context.width = canvas.width;
+        context.height = canvas.height;
+
+
+        var video = document.querySelector("#video");
+        var socket = io();
+
+        function publicarMensaje(msg){
+            document.querySelector("#status").innerText = msg; 
+        }
+
+        function cargarCamara(stream){
+            video.srcObject = stream;
+            publicarMensaje("camara activa");
+        }
+
+        function errorCamara(){
+            publicarMensaje("error camara");
+        }
+
+        function verVideo(video, context){
+            context.drawImage(video, 0, 0, context.width, context.height);
+            socket.emit("stream", canvas.toDataURL("image/webp"));
+        }
+
+        emitir.addEventListener("click", () => {
+            navigator.getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msgGetUserMedia);
+
+            if(navigator.getUserMedia){
+                navigator.getUserMedia({video: true}, cargarCamara, errorCamara);
+            }
+
+            var intervalo = setInterval(() => {
+                verVideo(video, context);
+            }, 500);
+        });
+    </script>
+</body>
+</html>
