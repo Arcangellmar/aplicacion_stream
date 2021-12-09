@@ -14,6 +14,11 @@
     <canvas id="preview"></canvas>
     <div id="status"></div>
 
+
+    <h1>TU CAMRA</h1>
+    <img id="play" src="" alt="">
+
+
     <script>
         var canvas = document.querySelector("#preview");
         var context = canvas.getContext("2d");
@@ -62,5 +67,14 @@
             }, 500);
         });
     </script>
+
+    <script>
+        var socket = io();
+        socket.on("stream", (imagen) => {
+            let img = document.querySelector("#play");
+            img.src = imagen;
+        });
+    </script>
+    
 </body>
 </html>
