@@ -1,14 +1,13 @@
 const {Router} = require("express");
 const connection = require("../../database/database");
-const bcryptjs  = require("bcryptjs");
 const router = Router();
 
-router.get("/", (req, res) => {
-    res.render("index", {login: false, name: "Debe Iniciar Sesion"})
-});
+// router.get("/", (req, res) => {
+//     res.render("index", {login: false, name: "Debe Iniciar Sesion"})
+// });
 
 router.get("/login", (req, res) => {
-    res.render("login");
+    res.render("login", {message: null});
 });
 
 router.get("/registro", (req, res) => {
@@ -20,9 +19,7 @@ router.post("/register", async(req, res) => {
     const name = req.body.name;
     const pass = req.body.pass;
 
-    let passEncry = await bcryptjs.hash(pass, 8);
-
-    let query = `CALL ADM_SP_USUARIOS_CREAR("${user}", "${name}", "${passEncry}")`;
+    let query = `CALL ADM_SP_USUARIOS_CREAR("${user}", "${name}", "${pass}")`;
 
     connection.query(query, async(error, results) =>{
         error ? 
@@ -35,21 +32,23 @@ router.post("/auth", async(req, res) => {
     const user = req.body.user;
     const pass = req.body.pass;
 
-    let passEncry = await bcryptjs.hash(pass, 8);
-
     if(user && pass){
-        let query = `SELECT * FROM adm_ta_usuarios WHERE VC_USERNAME = '${user}'`;
+        let query = `SELECT * FROM adm_ta_usuarios WHERE VC_USERNAME LIKE '${user}'`;
 
         connection.query(query, async(error, results) =>{
-            // if(results.length > 0 || !(await bcryptjs.compare(passEncry, results[0].VC_CONTRASENA))){
-
-            // }else{
-            //     req.session.loggedIn = true;
-            //     res.redirect("/");
-            // }
-            console.log(error);
+            // results = JSON.stringify(results[0]);
             console.log(results);
-            if(await bcryptjs.compare(passEncry, results[0].VC_CONTRASENA)) {
+            console.log(error);
+            console.log(results[0]);
+            if(results.length == 0){
+                req.session.loggedIn = false;
+                res.render("login", {message: "USUARIO NO ENCONTRADO"});
+            }
+            else if(pass != results[0]["VC_CONTRASENA"]){
+                req.session.loggedIn = false;
+                res.render("login", {message: "CONTRASEÑA INCORRECTA"});
+            }
+            else{
                 req.session.loggedIn = true;
                 res.redirect("/");
             }
@@ -61,5 +60,20 @@ router.get("/", (req, res) => {
     if(req.session.loggedIn) res.render("index", {login: true, name: req.session.username});
     else res.render("index", {login: false, name: "Debe Iniciar Sesion"})
 });
+
+//función para limpiar la caché luego del logout
+router.use(function(req, res, next) {
+    if (!req.user)
+        res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+    next();
+});
+
+ //Logout
+//Destruye la sesión.
+router.get('/logout', function (req, res) {
+	req.session.destroy(() => {
+	  res.redirect('/') // siempre se ejecutará después de que se destruya la sesión
+	})
+})
 
 module.exports = router;

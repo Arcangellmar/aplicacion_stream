@@ -15,11 +15,6 @@ app.use(express.urlencoded({extended: false}));
 // app.use(express.urlencoded());
 app.use(express.json());
 
-
-//rutas
-app.use(require("./routes/soproject.routes"));
-
-
 app.set('view engine', 'ejs');
 app.set("views", __dirname + "\\public");
 
@@ -28,6 +23,11 @@ app.use(session({
     resave: true,
     saveUninitialized: true
 }));
+
+//rutas
+app.use(require("./routes/soproject.routes"));
+
+
 
 app.use(express.static(__dirname + "/public"));
 
