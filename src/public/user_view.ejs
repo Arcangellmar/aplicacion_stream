@@ -4,22 +4,96 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emisor</title>
+    <title>Dueño de sala</title>
     <script src="/socket.io/socket.io.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
+
+    <style>
+        .btn-flotante {
+            font-size: 16px; /* Cambiar el tamaño de la tipografia */
+            text-transform: uppercase; /* Texto en mayusculas */
+            font-weight: bold; /* Fuente en negrita o bold */
+            color: white; /* Color del texto */
+            border-radius: 5px; /* Borde del boton */
+            background-color: black; /* Color de fondo */
+            padding: 18px 30px; /* Relleno del boton */
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            transition: all 300ms ease 0ms;
+            box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+            z-index: 99;
+        }
+        .btn-flotante:hover {
+            box-shadow: 0px 15px 20px rgba(0, 0, 0, 0.3);
+            transform: translateY(-7px);
+        }
+    </style>
 </head>
 <body>
-    <h1>Tu camara</h1>
-    <button id="emitir">Emitir</button>
-    <video src="" id="video" style="width:800px; height: 600px;" autoplay></video>
-    <canvas id="preview"></canvas>
-    <div id="status"></div>
+    <div class="btn-flotante">Codigo: 1</div>
+    <input class="d-none" type="file" id="selectorArchivo">
 
+    <div id="imagenPrevisualizacion" class="min-vh-100">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-8">
+                    <h1>Tu camara</h1>
+                    <video src="" id="video" style="width:100%; height: 600px;background-color: black; border-radius: 20px" autoplay></video>
+                    <canvas id="preview"></canvas>
+                    <!-- <div id="status"></div> -->
+                </div>
+                <div class="col-md-4">
+                    <h1>Usuarios activos</h1>
+                    <img id="play" src="" alt="" style="width:100%; background-color: black; border-radius: 20px">
+                    <img id="play1" src="" alt="">
+                    <img id="play2" src="" alt="">
+                    <img id="play3" src="" alt="">
+                    <img id="play4" src="" alt="">
+                    <img id="play5" src="" alt="">
+                </div>
+                <div class="col-12 text-center">
+                    <div class="btn-group" role="group" aria-label="Basic example">
+                        <button id="emitir" class="btn btn-primary"><i class="fas fa-video"></i></button>
+                        <button class="btn btn-primary"><i class="fas fa-volume-up"></i></button>
+                        <button class="btn btn-primary" onclick="document.querySelector('#selectorArchivo').click()"><i class="fas fa-upload"></i></button>
+                        <button id="finalizar" class="btn btn-primary"><i class="fas fa-phone-slash"></i></button>
+                      </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <h1>Tu ompañero</h1>
-    <img id="play" src="" alt="">
+    <div class="modal fade" id="ingreso" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Usuarios entrantes</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-12">
+                        <p>Usuario N°2</p>
+                        <p class="d-none">Usuario N°3</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Denegar</button>
+              <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Añadir</button>
+            </div>
+          </div>
+        </div>
+      </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+        var usuariosActivos = 0;
         var canvas = document.querySelector("#preview");
         var context = canvas.getContext("2d");
 
@@ -28,7 +102,7 @@
 
         canvas.style.display = "none";
         canvas.width = 500;
-        canvas.height = 380;
+        canvas.height = 300;
 
         context.width = canvas.width;
         context.height = canvas.height;
@@ -37,17 +111,14 @@
         var video = document.querySelector("#video");
         var socket = io();
 
-        function publicarMensaje(msg){
-            document.querySelector("#status").innerText = msg; 
-        }
+
 
         function cargarCamara(stream){
             video.srcObject = stream;
-            publicarMensaje("camara activa");
         }
 
         function errorCamara(){
-            publicarMensaje("error camara");
+            //publicarMensaje("error camara");
         }
 
         function verVideo(video, context){
@@ -56,25 +127,88 @@
         }
 
         emitir.addEventListener("click", () => {
-            navigator.getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msgGetUserMedia);
-
-            if(navigator.getUserMedia){
-                navigator.getUserMedia({video: true}, cargarCamara, errorCamara);
+            let timerInterval; 
+            Swal.fire({
+            title: 'Iniciando Camara',
+            html: 'Tiempo estimado <b></b>.',
+            timer: 2000,
+            timerProgressBar: true,
+            didOpen: () => {
+                Swal.showLoading()
+                const b = Swal.getHtmlContainer().querySelector('b')
+                timerInterval = setInterval(() => {
+                b.textContent = Swal.getTimerLeft()
+                }, 100)
+            },
+            willClose: () => {
+                clearInterval(timerInterval)
             }
+            }).then((result) => {
+                if (result.dismiss === Swal.DismissReason.backdrop) {
+                    Swal.fire('Proceso cancelado');
+                }
+                else{
+                    navigator.getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msgGetUserMedia);
 
-            var intervalo = setInterval(() => {
-                verVideo(video, context);
-            }, 500);
+                    if(navigator.getUserMedia){
+                        navigator.getUserMedia({video: true}, cargarCamara, errorCamara);
+                    }
+
+                    var intervalo = setInterval(() => {
+                        verVideo(video, context);
+                    }, 500);
+                }
+            })
         });
-    </script>
 
-    <script>
-        var socket = io();
+        document.querySelector("#finalizar").addEventListener("click", () =>{
+            socket.emit(window.location.href = "/finalizada");
+        });
+        
+        
         socket.on("stream", (imagen) => {
             let img = document.querySelector("#play");
             img.src = imagen;
         });
+
+        socket.on("connect", () => {
+            usuariosActivos++;
+            socket.emit($("#ingreso").modal("show"));
+        });
+        socket.on("disconnect", () => {
+            usuariosActivos--;
+        });
+
     </script>
     
+    <script>
+        // se utiliza js vanilla para encontrar os elemtos por id
+        const $seleccionArchivos = document.querySelector("#selectorArchivo"),
+        // obtengo el emlemento por js
+        $imagenPrevisualizacion = document.querySelector("#imagenPrevisualizacion");
+        $seleccionArchivos.addEventListener("change", () => {
+            // sleciona achivks
+            const archivos = $seleccionArchivos.files;
+            // si no existe archivo
+            if (!archivos || !archivos.length) {
+                // no preview
+                // $imagenPrevisualizacion.src = "";
+            $imagenPrevisualizacion.style.backgroundImage = ``;
+                // break de la funcion
+                return;
+            }
+            // solo primer archivo
+            const primerArchivo = archivos[0];
+            // creo url para imagen
+            const objectURL = URL.createObjectURL(primerArchivo);
+            // mando la imagen al preview
+            // $imagenPrevisualizacion.src = objectURL;
+            $imagenPrevisualizacion.style.backgroundImage = `url(${objectURL})`;
+            $imagenPrevisualizacion.style.backgroundRepeat = "no-repeat";
+            $imagenPrevisualizacion.style.backgroundPosition = "center center";
+            $imagenPrevisualizacion.style.backgroundSize = "cover";
+            aux = objectURL;
+        });
+    </script>
 </body>
 </html>

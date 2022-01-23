@@ -36,10 +36,6 @@ router.post("/auth", async(req, res) => {
         let query = `SELECT * FROM adm_ta_usuarios WHERE VC_USERNAME LIKE '${user}'`;
 
         connection.query(query, async(error, results) =>{
-            // results = JSON.stringify(results[0]);
-            console.log(results);
-            console.log(error);
-            console.log(results[0]);
             if(results.length == 0){
                 req.session.loggedIn = false;
                 res.render("login", {message: "USUARIO NO ENCONTRADO"});
@@ -50,6 +46,7 @@ router.post("/auth", async(req, res) => {
             }
             else{
                 req.session.loggedIn = true;
+                req.session.username = results[0]["VC_USERNAME"];
                 res.redirect("/");
             }
         });
@@ -75,5 +72,17 @@ router.get('/logout', function (req, res) {
 	  res.redirect('/') // siempre se ejecutará después de que se destruya la sesión
 	})
 })
+
+router.get("/emitir/:id", (req, res) => {
+    res.render("visualizar");
+});
+
+router.get("/emitir", (req, res) => {
+    res.render("user_view");
+});
+
+router.get("/finalizada", (req, res) => {
+    res.render("finalizada");
+});
 
 module.exports = router;

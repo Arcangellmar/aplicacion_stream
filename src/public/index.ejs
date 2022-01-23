@@ -5,24 +5,66 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
     <title>Hello, world!</title>
+	<style>
+		*{
+			font-family: 'Poppins', sans-serif;
+		}
+	</style>
   </head>
   <body>
-	<div class="container-fluid min-vh-100" style="background: url('https://images.pexels.com/photos/4226140/pexels-photo-4226140.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260') no-repeat fixed center">
-		<nav class="navbar navbar-expand-lg navbar-light bg-light">
-			<div class="container text-center">
+	<div class="container-fluid">
+		<div class="row align-items-center min-vh-100" style="background: url('https://images.pexels.com/photos/4226140/pexels-photo-4226140.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260'); background-repeat: no-repeat; background-position: center; background-size: cover;">
+			<div class="col text-center px-0">
+				<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+					<div class="container">
+						<% if (login) {%>
+							<h3>Bienvenido <%=name%></h3>
+							<a href="logout">Salir</a>
+						<% } else{ %>
+							<h3>Inicie sesion</h3>
+							<div>
+								<a class="btn btn-primary" href="login">Ingresar</a>
+								<a class="btn btn-primary" href="registro">Registro</a>
+							</div>
+						<% } %>
+					</div>
+				</nav>
 				<% if (login) {%>
-					<h1>Bienvenido <%=name%></h1>
-					<a href="logout">Salir</a>
+					<a class="btn btn-primary" href="/emitir">Iniciar Videollamada</a>
+					<a class="btn btn-primary" onclick="unirseLlamada()">Unirse a llamada</a>
 				<% } else{ %>
-					<h1><%=name%></h1>
-					<a href="login">Ingresar</a>
+					<a class="btn btn-primary" onclick="Swal.fire('Inicie sesion para realizar videollamadas')">Iniciar Videollamada</a>
 				<% } %>
 			</div>
-		</nav>
+		</div>
 	</div>
-    
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+	<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+	<script>
+		function unirseLlamada(){
+			Swal.fire({
+				title: 'Codigo de sala',
+				input: 'text',
+				inputAttributes: {
+				  autocapitalize: 'off'
+				},
+				showCancelButton: true,
+				confirmButtonText: 'Unirse',
+				cancelButtonText: "Cancelar",
+				showLoaderOnConfirm: true,
+				allowOutsideClick: () => !Swal.isLoading()
+			  }).then((result) => {
+				if (result.isConfirmed) {
+					window.location.href = "/emitir/1";
+				}
+			  });
+		}
+	</script>
   </body>
 </html>
