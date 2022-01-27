@@ -24,7 +24,7 @@ router.post("/register", async(req, res) => {
     connection.query(query, async(error, results) =>{
         error ? 
         console.log(error) : 
-        res.redirect("/");
+        res.redirect("/login");
     });
 });
 
@@ -73,7 +73,7 @@ router.get('/logout', function (req, res) {
 	})
 })
 
-router.get("/emitir/:id", (req, res) => {
+router.get("/emitir/FSS-RVDT-TFO", (req, res) => {
     res.render("visualizar");
 });
 
@@ -84,5 +84,24 @@ router.get("/emitir", (req, res) => {
 router.get("/finalizada", (req, res) => {
     res.render("finalizada");
 });
+
+router.use(function(req, res, next) {
+    res.status(404);
+  
+    // respond with html page
+    if (req.accepts('html')) {
+      res.render('404',);
+      return;
+    }
+  
+    // respond with json
+    if (req.accepts('json')) {
+      res.json({ error: 'Not found' });
+      return;
+    }
+  
+    // default to plain-text. send()
+    res.type('txt').send('Not found');
+  });
 
 module.exports = router;

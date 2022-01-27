@@ -16,7 +16,7 @@ app.use(express.urlencoded({extended: false}));
 app.use(express.json());
 
 app.set('view engine', 'ejs');
-app.set("views", __dirname + "\\public");
+app.set("views", __dirname + "\\public/");
 
 app.use(session({
     secret: 'secret',

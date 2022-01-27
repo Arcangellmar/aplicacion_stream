@@ -32,7 +32,7 @@
     </style>
 </head>
 <body>
-    <div class="btn-flotante">Codigo: 1</div>
+    <div class="btn-flotante" onclick='$("#ingreso").modal("show")'>Codigo: fss-rvdt-tfo</div>
     <input class="d-none" type="file" id="selectorArchivo">
 
     <div id="imagenPrevisualizacion" class="min-vh-100">
@@ -45,7 +45,7 @@
                     <!-- <div id="status"></div> -->
                 </div>
                 <div class="col-md-4">
-                    <h1>Usuarios activos</h1>
+                    <h1>Camaras activas</h1>
                     <img id="play" src="" alt="" style="width:100%; background-color: black; border-radius: 20px">
                     <img id="play1" src="" alt="">
                     <img id="play2" src="" alt="">
@@ -57,8 +57,8 @@
                     <div class="btn-group" role="group" aria-label="Basic example">
                         <button id="emitir" class="btn btn-primary"><i class="fas fa-video"></i></button>
                         <button class="btn btn-primary"><i class="fas fa-volume-up"></i></button>
-                        <button class="btn btn-primary" onclick="document.querySelector('#selectorArchivo').click()"><i class="fas fa-upload"></i></button>
-                        <button id="finalizar" class="btn btn-primary"><i class="fas fa-phone-slash"></i></button>
+                        <button class="btn btn-primary" onclick="procesoFondo()"><i class="fas fa-upload"></i></button>
+                        <button onclick="procesoCamara()" class="btn btn-primary"><i class="fas fa-phone-slash"></i></button>
                       </div>
                 </div>
             </div>
@@ -81,8 +81,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Denegar</button>
-              <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Añadir</button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="Swal.fire('Solicitud denegada')">Denegar solicitud</button>
+              <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="Swal.fire('Solicitud aceptada')">Aceptar solicitud</button>
             </div>
           </div>
         </div>
@@ -160,10 +160,6 @@
                 }
             })
         });
-
-        document.querySelector("#finalizar").addEventListener("click", () =>{
-            socket.emit(window.location.href = "/finalizada");
-        });
         
         
         socket.on("stream", (imagen) => {
@@ -173,7 +169,6 @@
 
         socket.on("connect", () => {
             usuariosActivos++;
-            socket.emit($("#ingreso").modal("show"));
         });
         socket.on("disconnect", () => {
             usuariosActivos--;
@@ -209,6 +204,60 @@
             $imagenPrevisualizacion.style.backgroundSize = "cover";
             aux = objectURL;
         });
+
+        function procesoFondo(){
+            let timerInterval; 
+            Swal.fire({
+            title: 'Iniciando Proceso',
+            html: 'Tiempo estimado <b></b>.',
+            timer: Math.round((Math.random() * (6 - 1) + 1) * 1000),
+            timerProgressBar: true,
+            didOpen: () => {
+                Swal.showLoading()
+                const b = Swal.getHtmlContainer().querySelector('b')
+                timerInterval = setInterval(() => {
+                b.textContent = Swal.getTimerLeft()
+                }, 100)
+            },
+            willClose: () => {
+                clearInterval(timerInterval)
+            }
+            }).then((result) => {
+                if (result.dismiss === Swal.DismissReason.backdrop) {
+                    Swal.fire('Proceso cancelado');
+                }
+                else{
+					document.querySelector('#selectorArchivo').click()
+                }
+            });
+        }
+
+        function procesoCamara(){
+            let timerInterval; 
+            Swal.fire({
+            title: 'Iniciando Proceso',
+            html: 'Tiempo estimado <b></b>.',
+            timer: Math.round((Math.random() * (6 - 1) + 1) * 1000),
+            timerProgressBar: true,
+            didOpen: () => {
+                Swal.showLoading()
+                const b = Swal.getHtmlContainer().querySelector('b')
+                timerInterval = setInterval(() => {
+                b.textContent = Swal.getTimerLeft()
+                }, 100)
+            },
+            willClose: () => {
+                clearInterval(timerInterval)
+            }
+            }).then((result) => {
+                if (result.dismiss === Swal.DismissReason.backdrop) {
+                    Swal.fire('Proceso cancelado');
+                }
+                else{
+					socket.emit(window.location.href = "/finalizada");
+                }
+            });
+        }
     </script>
 </body>
 </html>

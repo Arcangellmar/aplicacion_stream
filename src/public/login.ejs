@@ -10,16 +10,16 @@
   </head>
   <body>
       
-    <main class="text-center container-fluid">
+    <main class="text-center container-fluid" style="background: url('https://www.adslzone.net/app/uploads-adslzone.net/2020/05/Videollamadas.jpg'); background-repeat: no-repeat; background-position: center; background-size: cover;">
         <div class="container">
             <div class="row min-vh-100 justify-content-center align-items-center">
-                <div class="col ">
-                    <div class="card">
+                <div class="col-12 col-md-6 text-center">
+                    <div class="card shadow" style="width: 35rem;">
                         <div class="card-header">
-                            <h2>Login</h2>
+                            <h2>Iniciar Sesión</h2>
                         </div>
-                        <div class="card-body">
-                            <form action="/auth" method="post">
+                        <div class="card-body py-5">
+                            <form id="formularioLogin" action="/auth" method="post">
                                 <div class="mb-3">
                                     <label for="user">Usuario</label>
                                     <input type="text" class="form-control" id="user" name="user" placeholder="Ingrese su usuario" required>
@@ -29,7 +29,7 @@
                                     <input type="password" class="form-control" id="pass" name="pass" placeholder="Ingrese su contraseña" required>
                                 </div>
                                 <div class="mb-3">
-                                    <button class="w-100 btn btn-lg btn-primary" type="submit">Login</button>
+                                    <button class="w-100 btn btn-lg btn-primary" onclick="procesoLogin()">Iniciar Sesión</button>
                                 </div>
                             </form>
                             <a class="text-center" href="registro">Registrarse</a>
@@ -44,5 +44,36 @@
     </main>
         
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+	<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        function procesoLogin(){
+            let timerInterval; 
+            Swal.fire({
+            title: 'Iniciando Proceso',
+            html: 'Tiempo estimado <b></b>.',
+            timer: Math.round((Math.random() * (6 - 1) + 1) * 1000),
+            timerProgressBar: true,
+            didOpen: () => {
+                Swal.showLoading()
+                const b = Swal.getHtmlContainer().querySelector('b')
+                timerInterval = setInterval(() => {
+                b.textContent = Swal.getTimerLeft()
+                }, 100)
+            },
+            willClose: () => {
+                clearInterval(timerInterval)
+            }
+            }).then((result) => {
+                if (result.dismiss === Swal.DismissReason.backdrop) {
+                    Swal.fire('Proceso cancelado');
+                }
+                else{
+                    $("#formularioLogin").submit();
+                }
+            });
+        }
+    </script>
   </body>
 </html>
